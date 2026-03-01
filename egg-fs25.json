@@ -1,0 +1,113 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PELICAN PANEL",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2025-03-01T00:00:00+00:00",
+    "name": "Farming Simulator 25",
+    "author": "custom@example.com",
+    "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+    "description": "Farming Simulator 25 Dedicated Server via Wine + SteamCMD. Benoetigt Steam-Account mit FS25-Lizenz (App: 2300320).",
+    "features": null,
+    "docker_images": {
+        "FS25 Wine": "ghcr.io/DEIN_GITHUB_USER/fs25-wine:latest"
+    },
+    "file_denylist": [],
+    "startup": "Xvfb :99 -screen 0 320x240x8 & sleep 1 && DISPLAY=:99 wine dedicatedServer.exe",
+    "config": {
+        "files": "{}",
+        "startup": "{\"done\": \"Farming Simulator\"}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!/bin/bash\nset -e\n\n# SteamCMD\ncd /tmp\napt-get install -y --no-install-recommends curl lib32gcc-s1 2>/dev/null || true\ncurl -fsSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz | tar -xz\n\n# FS25 herunterladen (App 2300320)\n./steamcmd.sh \\\n  +force_install_dir /mnt/server \\\n  +login \"${STEAM_USER}\" \"${STEAM_PASS}\" \\\n  +app_update 2300320 validate \\\n  +quit\n\n# Steam AppID-Fix (verhindert Popup beim Start)\necho '2300320' > /mnt/server/steam_appid.txt\n\n# Default Config\nif [ ! -f /mnt/server/dedicatedServer.xml ]; then\ncat > /mnt/server/dedicatedServer.xml << XMLEOF\n<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n<gameserver>\n  <settings>\n    <game_name>${SERVER_NAME:-FS25 Server}</game_name>\n    <game_password>${SERVER_PASSWORD:-}</game_password>\n    <admin_password>${ADMIN_PASSWORD:-ChangeMe123}</admin_password>\n    <port>${SERVER_PORT:-10823}</port>\n    <save_game_index>1</save_game_index>\n    <map_id>MapUS</map_id>\n    <language>de</language>\n    <crossplay_allowed>true</crossplay_allowed>\n    <max_players>${MAX_PLAYERS:-16}</max_players>\n  </settings>\n  <initial_admin>\n    <username>${ADMIN_USER:-admin}</username>\n    <passphrase>${ADMIN_PASSWORD:-ChangeMe123}</passphrase>\n  </initial_admin>\n</gameserver>\nXMLEOF\nfi",
+            "container": "ubuntu:22.04",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Steam Benutzername",
+            "description": "Steam-Account mit FS25-Lizenz (App 2300320)",
+            "env_variable": "STEAM_USER",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Steam Passwort",
+            "description": "Steam-Passwort",
+            "env_variable": "STEAM_PASS",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Server Name",
+            "description": "Anzeigename in der Serverliste",
+            "env_variable": "SERVER_NAME",
+            "default_value": "Mein FS25 Server",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:64",
+            "field_type": "text"
+        },
+        {
+            "name": "Server Passwort",
+            "description": "Join-Passwort (leer = offen)",
+            "env_variable": "SERVER_PASSWORD",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string|max:32",
+            "field_type": "text"
+        },
+        {
+            "name": "Admin Benutzername",
+            "description": "Login fuer die WebUI",
+            "env_variable": "ADMIN_USER",
+            "default_value": "admin",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Admin Passwort",
+            "description": "Passwort fuer die WebUI",
+            "env_variable": "ADMIN_PASSWORD",
+            "default_value": "ChangeMe123",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|min:8",
+            "field_type": "text"
+        },
+        {
+            "name": "Max Spieler",
+            "description": "Maximale Spieleranzahl (1-16)",
+            "env_variable": "MAX_PLAYERS",
+            "default_value": "16",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|integer|min:1|max:16",
+            "field_type": "text"
+        },
+        {
+            "name": "Server Port",
+            "description": "UDP Game-Port",
+            "env_variable": "SERVER_PORT",
+            "default_value": "10823",
+            "user_viewable": false,
+            "user_editable": false,
+            "rules": "required|integer|between:1024,65535",
+            "field_type": "text"
+        }
+    ]
+}
