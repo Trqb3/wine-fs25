@@ -11,7 +11,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -u 998 -s /bin/bash container
+
+COPY --chown=root:root startup.sh /startup.sh
+RUN chmod +x /startup.sh
+
 USER container
 WORKDIR /home/container
 
-ENTRYPOINT ["/bin/bash", "-c"]
+ENTRYPOINT ["/startup.sh"]
