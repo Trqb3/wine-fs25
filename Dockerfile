@@ -3,6 +3,7 @@ FROM --platform=linux/amd64 debian:bookworm-slim
 ENV DEBIAN_FRONTEND=noninteractive
 ENV WINEDEBUG=-all
 ENV WINEPREFIX=/home/container/.wine
+ENV DISPLAY=:99
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         wine64 \
@@ -12,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN useradd -m -u 998 -s /bin/bash container
 
-COPY --chown=root:root startup.sh /startup.sh
+COPY --chown=container:container startup.sh /startup.sh
 RUN chmod +x /startup.sh
 
 USER container
