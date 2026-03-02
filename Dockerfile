@@ -16,4 +16,3 @@ USER container
 WORKDIR /home/container
 
 ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["echo hello"]
