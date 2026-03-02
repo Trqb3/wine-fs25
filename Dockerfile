@@ -14,3 +14,6 @@ RUN dpkg --add-architecture i386 && \
 RUN useradd -m -u 998 -s /bin/bash container
 USER container
 WORKDIR /home/container
+
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["echo hello"]
